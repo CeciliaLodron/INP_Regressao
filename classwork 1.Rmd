@@ -1,0 +1,78 @@
+---
+title: "Dever de classe 01 - Dados Hubble"
+author: "Cecilia Lodron Gonzaga e Francielle Rezende"
+date: "2026-09-04"
+output: pdf_document
+---
+# Resumo
+Neste relatório, iremos verificar os dados do satélite Hubble e verificarmos a linearidade dos dados entre a distância e a velocidade. Primeiramente, verificaremos o comportamento dos dados logo após verificar se podemos encaixar uma regressão linear entre as variáveis.
+
+# Introdução    
+    
+  Em 1929, os astrônomo Edwin Hubble, trabalhando no observatório Mount Wilson, realizou um estudo em que foram analisadas as velocidades e distâncias entre as galáxias. Hubble utilizou as chamadas estrelas Cafeidas para medir as distâncias das várias galáxias.
+  Esses dados foram publicados e, segundo Machado, foram considerados um grande marco na cosmologia.    
+  Nesse trabalho iremos utilizar os dados obtidos por Hubble para avaliar a relação linear entre a velocidade e a distância das galáxias.
+
+
+
+```{r Pacotes, message=FALSE, warning=FALSE, include=FALSE}
+library("corrplot")
+library("dplyr")
+library("ggrepel")
+library("readxl")
+library("reshape2")
+```
+
+
+```{r Dados, warning=FALSE}
+Sys.setenv(LANG = "en")
+rm(list = ls(all = TRUE))
+setwd("C:/Users/cecil/OneDrive/Documentos")
+dados <- read_excel(path = "1929_Hubble.xlsx", sheet = "Data")
+
+dados[1:15,c(3,5)]
+```
+
+
+
+```{r Analise exploratória, warning=FALSE}
+par(mfrow = c(1,2))
+
+#guardando as colunas em variáveis
+velocidade <- dados$v_km_s
+distancia <- as.numeric(dados$r_Mpc)
+
+#Resumo dos dados
+summary(velocidade)
+summary(distancia)
+
+#Boxplot da velocidade
+boxplot(cars$speed,
+        main = "Velocidade")
+
+# Boxplot da Distância
+boxplot(cars$dist,
+        main = "Distância")
+
+par(mfrow = c(1,1))
+#análise do gráfico
+plot(distancia, velocidade, main = "Hubble: Distância x Velocidade")
+```
+O gráfico acima relaciona a velocidade das galáxias (eixo y) com a distância entre elas (eixo x). Como pode-se observar, os pontos no gráfico se concentram em uma linear crescente no meio do gráfico. Ou seja, nota-se que, a medida que as distâncias aumentam, as velocidades também aumentam.
+
+```{r Regressão Linear, warning=FALSE}
+coef <- lm(velocidade~distancia, data = dados)
+coef
+plot(distancia, velocidade, main = "Regressão linear: Distância x Velocidade")
+abline(coef, col = "blue", lwd = 2)
+```
+
+
+Como dito anteriormente, existe relação linear entre a distância ($r$) e a velocidade ($\upsilon $), pois enquanto a distância aumenta, a velocidade aumenta seguindo a seguinte relação:
+
+$$\upsilon   = \beta_1 + \beta_2r + \varepsilon  $$
+$$\upsilon  = -48.34  + 505.84r+ \varepsilon  $$
+
+
+
+# Conclusão

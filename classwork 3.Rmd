@@ -1,0 +1,108 @@
+---
+title: "Classwork 03 - ANOVA"
+author: "Cecilia Lodron Gonzaga (202365013AD) e Francielle Rezende (202565784D)"
+date: "2026-09-25"
+output: pdf_document
+---
+
+# Introdução
+
+A reprodução é um aspecto importante para o estudo das características biológicas das espécies. Neste trabalho, são analisados dados de um evento reprodutivo da espécie Leptinaria unilamellata.
+ Os dados apresentam informações sobre o número de filhotes liberados (Offspring), o tempo, em dias, para a liberação (Time) e os diferentes grupos experimentais (Group).
+
+A partir desses dados, é possível observar como o número de filhotes liberados se comporta nos diferentes grupos e verificar se existem diferenças entre eles. Para isso, será realizada inicialmente uma análise exploratória, utilizando medidas descritivas e gráficos para compreender melhor os dados, identificar possíveis padrões e observar a presença de valores que possam se destacar. Em seguida, será utilizado um modelo de análise de variância, considerando o número de filhotes liberados como variável resposta e o grupo experimental como variável preditora.
+
+Dessa forma, o objetivo deste trabalho é investigar se o número médio de filhotes liberados apresenta diferença entre os grupos experimentais, utilizando a análise exploratória para avaliar os dados e obter uma conclusão baseada nas evidências observadas.
+
+# Modelagem
+
+## Análise expliratória
+
+Primeiramente, vamos organizar os dados
+
+```{r Dados, echo=TRUE}
+setwd("C:/Users/cecil/OneDrive/Documentos")
+library(readxl)
+dados <- as.data.frame(read_excel("2013_Leptinariaunilamellata.xlsx"))
+
+head(dados)
+summary(dados)
+```
+
+
+```{r Análise expliratória}
+
+par(mfrow = c(1,2))
+
+
+#histograma de cada grupo
+library(ggplot2)
+ggplot(dados, aes(x = Offspring)) +
+  geom_histogram(binwidth = 1, boundary = 0.5, color = "black") +
+  facet_wrap(~ Group) +
+  labs(
+    title = "Distribuição do número de filhotes por grupo",
+    x = "Número de filhotes",
+    y = "Frequência"
+  ) +
+  theme_minimal()
+
+
+qqnorm(dados$Offspring[dados$Group == "A"], main = "QQ-plot grupo A")
+qqline(dados$Offspring[dados$Group == "A"], col ="blue")
+
+qqnorm(dados$Offspring[dados$Group == "B"], main = "QQ-plot grupo B")
+qqline(dados$Offspring[dados$Group == "B"], col = "blue")
+
+par(mfrow = c(1,1))
+
+modelo <- lm(Offspring ~ Group, data = dados)
+qqnorm(residuals(modelo), main = "QQ-plot dos resíduos")
+qqline(residuals(modelo), col = "red")
+```
+
+  O histograma da distribução do número de filhotes por grupo mostra que sob as condições do grupo A, a reprodutibilidade dos filhotes foi maior que sob as condições do grupo B. O que indica que as condições do grupo A foram mais favoráveis para o aumento dos filhotes.
+  Ao analisar ambos os QQ-plots, é posível concluir que não há evidência de normalidade nas distribuições dos grupos A e B, entretanto, podemos assumir normalidade dos resíduos. Além disso, no histograma é possível observar uma assimetria na distribuição do número de filhotes em ambos os grupos.
+
+  
+
+## Modelagem e Teste de hipóteses
+
+Calculando a tabela de análise de variância (ANOVA), é possível fazermos o teste de hipóteses abaixo:
+
+$H_0: /mu_1 = /mu_2 = /dots = /mu_k$ 
+
+$H_1:$ Pelo menos uma é diferente
+
+```{r Modelo anova}
+anova(modelo)
+```
+Para entender a tabela gerada, podemos nos basear na tabela ANOVA padrão abaixo:
+
+```{r echo=FALSE, fig.align="center", fig.cap="ANOVA table", out.width="70%"}
+knitr::include_graphics("C:/Users/cecil/OneDrive/Imagens/Captura de tela 2026-09-25 085656.png")
+```
+
+  Como a função já calcula o p-valor, podemos concluir pelo valor de pr = 0.4217 que não rejeitamos $H_0$, já que o p-valor é muito maior que valores de $\alpha_i = 1\%, 5\%, 10\%$, portanto temos evidências suficientes para não rejeitamos a hipótese nula. Logo, podemos assumir que as médias do modelo são iguais. Verificamos isso pelo valor de SSR = 1.759, no qual é a variabilidade explicada pelo modelo, então como o seu valor é pequeno, temos maiores evidências que os grupos possuem médias semelhantes.
+  Logo, em um contexto prático, como temos evidências de médias iguais, não podemos ajustar uma regressão linear aos dados. Veja o gráfico abaixo e perceba como os dados não seguem um padrão linear:
+  
+```{r echo=FALSE}
+ggplot(dados, aes(x = Time, y = Offspring)) +
+  geom_point() +
+  labs(
+    title = "Relação entre tempo e número de filhotes",
+    x = "Tempo (dias)",
+    y = "Número de filhotes"
+  ) +
+  theme_minimal()
+```
+  
+
+
+# Conclusão
+
+  Conlcuimos que em ambos os grupos, o número de filhotes não possui relação linear com o tempo, isso porquê não temos evidências que comprovem o teste de hipótese feito no ANOVA, no qual as médias apresentaram evidências de igualdade. Podemos perceber que as diferênças no número de filhotes entre os grupos está sendo causada por uma outra variável, porém as médias são semelhantes.
+  
+  
+  
+  
